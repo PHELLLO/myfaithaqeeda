@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#123c32" />
+    <title>myfaithعقيده | Learn the Orthodox Faith</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="site-shell">
+      <header class="topbar">
+        <button class="brand" aria-label="Go to home" data-action="home">
+          <span class="cross-mark" aria-hidden="true">☩</span>
+          <span><strong><bdi>myfaithعقيده</bdi></strong><small>Orthodox Faith Academy</small></span>
+        </button>
+        <nav class="desktop-nav" aria-label="Primary navigation">
+          <button data-action="home">Home</button>
+          <button data-action="courses">Sessions</button>
+          <button data-action="progress">My journey</button>
+        </nav>
+        <div class="account-area" id="accountArea"></div>
+      </header>
+
+      <main id="app" tabindex="-1"></main>
+    </div>
+
+    <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+
+    <dialog id="authDialog" class="dialog auth-dialog">
+      <button class="dialog-close" data-action="close-dialog" aria-label="Close">×</button>
+      <div class="dialog-cross">☩</div>
+      <p class="eyebrow">WELCOME TO THE JOURNEY</p>
+      <h2>Begin with a simple sign in.</h2>
+      <p class="muted">Use your email to keep your notes, points, and course progress safe on this device.</p>
+      <form id="authForm" class="stack-form">
+        <label>Email address
+          <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" required />
+        </label>
+        <label>Display name <span class="optional">(optional)</span>
+          <input id="nameInput" type="text" placeholder="Your first name" autocomplete="name" />
+        </label>
+        <button class="primary-button full" type="submit">Enter the academy <span>→</span></button>
+      </form>
+      <p class="fine-print">The administrator account is reserved for the academy steward.</p>
+    </dialog>
+
+    <dialog id="adminLessonDialog" class="dialog admin-dialog">
+      <button class="dialog-close" data-action="close-dialog" aria-label="Close">×</button>
+      <p class="eyebrow">BUILD A SESSION</p>
+      <h2>Add a learning page</h2>
+      <p class="muted">Each page may include a video, teaching text, and a short optional knowledge check.</p>
+      <form id="adminLessonForm" class="stack-form">
+        <label>Existing session
+          <select id="lessonCourse" required></select>
+        </label>
+        <label>New session name <span class="optional">(optional)</span>
+          <input id="newLessonSessionName" placeholder="e.g. The Sacraments" />
+        </label>
+        <p class="field-help">Enter a name here to create a new session and add this learning page to it. Otherwise, choose an existing session above.</p>
+        <label>Video title
+          <input id="lessonTitle" required placeholder="e.g. Faith: a living trust" />
+        </label>
+        <label>Video URL
+          <input id="lessonVideo" type="url" required placeholder="https://… (YouTube or direct video link)" />
+        </label>
+        <label>Teaching text
+          <textarea id="lessonText" required rows="5" placeholder="Write the reflection or teaching students will read."></textarea>
+        </label>
+        <fieldset class="optional-quiz">
+          <legend>Optional knowledge check</legend>
+          <label>Question
+            <input id="quizQuestion" placeholder="What does…?" />
+          </label>
+          <div class="two-col">
+            <label>Option A
+              <input id="quizOptionA" placeholder="First choice" />
+            </label>
+            <label>Option B
+              <input id="quizOptionB" placeholder="Second choice" />
+            </label>
+            <label>Option C
+              <input id="quizOptionC" placeholder="Third choice" />
+            </label>
+            <label>Option D
+              <input id="quizOptionD" placeholder="Fourth choice" />
+            </label>
+          </div>
+          <label>Correct option
+            <select id="quizCorrect"><option value="0">Option A</option><option value="1">Option B</option><option value="2">Option C</option><option value="3">Option D</option></select>
+          </label>
+        </fieldset>
+        <button class="primary-button full" type="submit">Add learning page <span>+</span></button>
+      </form>
+    </dialog>
+
+    <dialog id="adminExamDialog" class="dialog admin-dialog">
+      <button class="dialog-close" data-action="close-dialog" aria-label="Close">×</button>
+      <p class="eyebrow">SESSION EXAM</p>
+      <h2>Add a final exam question</h2>
+      <p class="muted">Students see the exam after completing every video in its session.</p>
+      <form id="adminExamForm" class="stack-form">
+        <label>Session
+          <select id="examCourse" required></select>
+        </label>
+        <label>Question
+          <textarea id="examQuestion" required rows="3" placeholder="Write a thoughtful final question."></textarea>
+        </label>
+        <div class="two-col">
+          <label>Option A
+            <input id="examOptionA" required placeholder="First choice" />
+          </label>
+          <label>Option B
+            <input id="examOptionB" required placeholder="Second choice" />
+          </label>
+          <label>Option C
+            <input id="examOptionC" required placeholder="Third choice" />
+          </label>
+          <label>Option D
+            <input id="examOptionD" required placeholder="Fourth choice" />
+          </label>
+        </div>
+        <label>Correct option
+          <select id="examCorrect"><option value="0">Option A</option><option value="1">Option B</option><option value="2">Option C</option><option value="3">Option D</option></select>
+        </label>
+        <button class="primary-button full" type="submit">Add exam question <span>+</span></button>
+      </form>
+    </dialog>
+
+    <dialog id="newCourseDialog" class="dialog small-dialog">
+      <button class="dialog-close" data-action="close-dialog" aria-label="Close">×</button>
+      <p class="eyebrow">NEW SESSION</p>
+      <h2>Create a session</h2>
+      <form id="newCourseForm" class="stack-form">
+        <label>Session title
+          <input id="courseTitle" required placeholder="e.g. The Divine Liturgy" />
+        </label>
+        <label>Short description
+          <textarea id="courseDescription" required rows="3" placeholder="What will learners discover?"></textarea>
+        </label>
+        <button class="primary-button full" type="submit">Create session <span>+</span></button>
+      </form>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>
