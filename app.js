@@ -3,6 +3,7 @@
 const ADMIN_EMAIL = 'probeto192@gmail.com';
 const STORAGE_KEY = 'the-coptic-path-data-v1';
 const USER_KEY = 'the-coptic-path-user-v1';
+const GOOGLE_SHEET_API_URL = window.MYFAITH_GOOGLE_SCRIPT_URL || '';
 const mcq = (question, correct, ...otherOptions) => ({ question, options: [correct, ...otherOptions], correctIndex: 0 });
 
 const seedData = {
@@ -125,6 +126,10 @@ function loadData() {
 }
 function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  if (GOOGLE_SHEET_API_URL) {
+    saveToGoogleSheet(state);
+    return;
+  }
   // When the included server is running, this also persists the complete
   // learning state in its SQLite database. Local storage remains a graceful
   // fallback for opening index.html directly.
@@ -135,6 +140,32 @@ function saveData() {
       body: JSON.stringify(state)
     }).catch(() => {});
   }
+}
+
+function googleJsonp(url) {
+  return new Promise((resolve, reject) => {
+    const callback = `myfaithGoogleCallback${Date.now()}${Math.floor(Math.random() * 10000)}`;
+    const script = document.createElement('script');
+    const cleanup = () => {
+      delete window[callback];
+      script.remove();
+    };
+    window[callback] = (data) => { cleanup(); resolve(data); };
+    script.onerror = () => { cleanup(); reject(new Error('Google Sheet connection failed.')); };
+    script.src = `${url}${url.includes('?') ? '&' : '?'}action=read&callback=${callback}`;
+    document.head.append(script);
+  });
+}
+
+function saveToGoogleSheet(platformState) {
+  // Apps Script accepts this simple cross-site POST. The browser cannot read
+  // the response, but the following refresh will load the saved Sheet state.
+  fetch(GOOGLE_SHEET_API_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'save', state: platformState })
+  }).catch(() => toast('Could not save to Google Sheets. Check the Script URL.'));
 }
 function loadUser() { try { return JSON.parse(localStorage.getItem(USER_KEY)) || null; } catch { return null; } }
 function saveUser() { if (currentUser) localStorage.setItem(USER_KEY, JSON.stringify(currentUser)); else localStorage.removeItem(USER_KEY); }
@@ -386,7 +417,17 @@ function slugId(value) { return `${value.toLowerCase().replace(/[^a-z0-9]+/g, '-
 async function initialize() {
   // Prefer shared SQLite-backed state when the app is served through server.mjs.
   // A direct file preview continues to work entirely in the browser.
-  if (location.protocol.startsWith('http')) {
+  if (GOOGLE_SHEET_API_URL) {
+    try {
+      const remoteState = await googleJsonp(GOOGLE_SHEET_API_URL);
+      if (remoteState && Array.isArray(remoteState.courses) && remoteState.records) {
+        state = remoteState;
+        normalizeMcqData();
+        normalizeLearnerData();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+    } catch { toast('Google Sheets is not connected yet. Using this device’s saved data.'); }
+  } else if (location.protocol.startsWith('http')) {
     try {
       const response = await fetch('/api/state');
       const remoteState = response.ok ? await response.json() : null;
